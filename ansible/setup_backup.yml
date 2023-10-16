@@ -1,0 +1,49 @@
+---
+- name: Configure rclone for database backups
+  hosts: [prodigy]
+  connection: ssh 
+  become: yes
+
+  tasks:
+    - name: Include secrets
+      include_vars: 
+        file: secret.yml
+      no_log: true
+
+    - name: Set the time zone to Europe/Amsterdam
+      ansible.builtin.timezone:
+        name: Europe/Amsterdam
+
+    - name: Install rclone
+      apt:
+        name:
+          - rclone
+        state: present
+
+    - name: Obscure rclone password
+      command: rclone obscure {{ rclone_pass }}
+      register: rclone_obscured_password
+      no_log: true
+
+    - name: Generate rclone config
+      template:
+        src: template/rclone.conf.j2
+        dest: "{{ ansible_env.HOME }}/.config/rclone/rclone.conf"
+        mode: 0600
+      vars:
+        rclone_password: "{{ rclone_obscured_password.stdout }}"
+      no_log: true
+
+    - name: Ensure backup script is present
+      copy:
+        src: ../backup.sh
+        dest: /usr/local/bin/backup.sh
+        mode: '0700'
+
+    - name: Create rclone cron job
+      cron:
+        name: "backup database to research drive"
+        minute: "0"
+        hour: "5"
+        user: root
+        job: "/usr/local/bin/backup.sh"

@@ -1,0 +1,10 @@
+---
+- name: run prodigy playbooks
+  hosts: all
+  gather_facts: no
+
+- import_playbook: setup_nginx.yml
+
+- import_playbook: setup_docker.yml
+
+- import_playbook: setup_backup.yml

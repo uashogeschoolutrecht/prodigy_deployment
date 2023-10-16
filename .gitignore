@@ -1,0 +1,4 @@
+*.env
+.vscode/
+secret.yml
+inventory.ini
