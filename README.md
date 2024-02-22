@@ -82,6 +82,10 @@ Set up your inventory file to specify the target host and user. Replace your.tar
 [prodigy]
 your.target.host.ip ansible_user=username
 ```
+You can skip this step if you run the script directly on the VM. Instead install Ansible on the VM: 
+```bash
+apt install ansible
+```
 
 __3. Create the Secrets File__
 
@@ -110,7 +114,22 @@ Run the Ansible playbooks. You'll be prompted to enter the Ansible Vault passwor
 ``` bash
 ansible-playbook -i inventory.ini prodigy_playbook.yml --ask-vault-pass
 ```
+If you run from the VM directly, replace the following lines on top of all three .yml files in the ansible directory (setup_backup.yml, setup_docker.yml, setup_nginx.yml):
 
+```yml
+  hosts: [prodigy]
+  connection: ssh
+```
+with:
+
+```yml
+  hosts: localhost
+```
+
+Then run the playbooks with the following (you will also be prompted the Ansible Vault password):
+``` bash
+ansible-playbook prodigy_playbook.yml --ask-vault-pass
+```
 <p align="right"><a href="#readme-top">back to top</a></p>
 
 ## Usage <a name="time_line"></a>
