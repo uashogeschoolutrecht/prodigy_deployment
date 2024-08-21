@@ -1,0 +1,13 @@
+- name: change the owner of the app/data dir Prodigy
+  hosts: [prodigy]
+  connection: ssh
+
+  tasks:
+    - name: Change the owner of the /app/data directory to the user running the script
+      become: yes
+      file:
+        path: "/app/data"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        recurse: yes
+        mode: "0775"
