@@ -1,6 +1,6 @@
 - name: change the owner of the app/data dir Prodigy
-  hosts: [prodigy]
-  connection: ssh
+  hosts: "{{ target_host | default('localhost') }}"
+  connection: "{{ target_connection | default('local') }}"
 
   tasks:
     - name: Change the owner of the /app/data directory to the user running the script

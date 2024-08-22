@@ -1,12 +1,12 @@
 ---
 - name: Configure rclone for database backups
-  hosts: [prodigy]
-  connection: ssh 
+  hosts: "{{ target_host | default('localhost') }}"
+  connection: "{{ target_connection | default('local') }}"
   become: yes
 
   tasks:
     - name: Include secrets
-      include_vars: 
+      include_vars:
         file: secret.yml
       no_log: true
 
@@ -38,7 +38,7 @@
       copy:
         src: ../backup.sh
         dest: /usr/local/bin/backup.sh
-        mode: '0700'
+        mode: "0700"
 
     - name: Create rclone cron job
       cron:

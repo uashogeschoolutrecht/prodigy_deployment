@@ -1,16 +1,16 @@
 ---
 - name: Configure Nginx for Prodigy
-  hosts: [prodigy]
-  connection: ssh 
+  hosts: "{{ target_host | default('localhost') }}"
+  connection: "{{ target_connection | default('local') }}"
   become: yes
-  
+
   tasks:
     - name: Include secrets
-      include_vars: 
+      include_vars:
         file: secret.yml
       no_log: true
-        
-    - name: Install apache2-utils 
+
+    - name: Install apache2-utils
       apt:
         name:
           - apache2-utils
