@@ -1,7 +1,7 @@
 ---
 - name: Build and Run Docker Containers for Prodigy
-  hosts: [prodigy]
-  connection: ssh 
+  hosts: "{{ target_host | default('localhost') }}"
+  connection: "{{ target_connection | default('local') }}"
   become: yes
 
   vars:
@@ -11,14 +11,14 @@
 
   tasks:
     - name: Include secrets
-      include_vars: 
+      include_vars:
         file: secret.yml
       no_log: true
 
     - name: Install docker
       apt:
         name: docker
-        state: present   
+        state: present
 
     - name: Install docker compose
       apt:
@@ -36,16 +36,16 @@
         dest: "{{ project_path }}/{{ item.dest }}"
         mode: "{{ item.mode | default('0644') }}"
       loop:
-        - { src: '../docker/Dockerfile', dest: 'Dockerfile' }
-        - { src: '../docker/docker-compose.yml', dest: 'docker-compose.yml' }
-        - { src: '../docker/.dockerignore', dest: '.dockerignore' }
-        - { src: '../requirements.txt', dest: 'requirements.txt' }
-        - { src: '../run.sh', dest: 'run.sh' }
-        - { src: '../.env', dest: '.env' }
+        - { src: "../docker/Dockerfile", dest: "Dockerfile" }
+        - { src: "../docker/docker-compose.yml", dest: "docker-compose.yml" }
+        - { src: "../docker/.dockerignore", dest: ".dockerignore" }
+        - { src: "../requirements.txt", dest: "requirements.txt" }
+        - { src: "../run.sh", dest: "run.sh" }
+        - { src: "../.env", dest: ".env" }
 
     - name: Build Docker image using secret
       shell: |
-        docker-compose -f {{ project_path }}/docker-compose.yml -p app build --build-arg PRODIGY_KEY="{{ prodigy_key }}" 
+        docker-compose -f {{ project_path }}/docker-compose.yml -p app build --build-arg PRODIGY_KEY="{{ prodigy_key }}"
       args:
         executable: /bin/bash
 

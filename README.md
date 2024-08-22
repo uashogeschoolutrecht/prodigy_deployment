@@ -1,3 +1,5 @@
+<a id="readme-top"></a>
+
 <div align="center">
 
   <h3 align="center">Prodigy deployment on a VM</h3>
@@ -7,7 +9,7 @@
   </p>
 </div>
 
-##  Table of Contents
+## Table of Contents
 
 - [ About ](#-about-)
   - [Key features](#Key-features)
@@ -21,7 +23,7 @@
   - [Persistent Data Storage](#Persistent-Data-Storage)
   - [Backups and file tranfers](#Backups-and-file-tranfers)
 
-##  About <a name = "about"></a>
+## About <a name = "about"></a>
 
 Prodigy is an interactive and modern annotation tool designed to help professionals and researchers efficiently collect data. It provides an intuitive interface that can be customized for various annotation tasks, making the data collection process streamlined and more accessible.
 
@@ -44,92 +46,87 @@ This project contains three ansible playbooks.
 
 <p align="right"><a href="#readme-top">back to top</a></p>
 
-
 ## Getting Started <a name = "functions"></a>
 
 ### Prerequisites
 
 This guide is designed to help you configure and deploy Prodigy. Before diving into the installation, it's essential to understand and prepare the necessary prerequisites for both your control machine and the target host.
 
-__Control Machine__:
+**Control Machine**:
 
-  - __Operating System__: Preferably Linux or MacOS. You can use Windows if leveraging the Windows Subsystem for Linux (WSL).
-  - __Python__: Required to run Ansible.
-        For Ansible 2.7 and earlier: Python 2 (version 2.6 or later).
-        For Ansible 2.8 and later: Python 3 (version 3.5 or later) is recommended.
-  - __Ansible__: Ensure you've installed Ansible.
-  - __SSH__: Necessary for communicating with the remote prodigy host.
+- **Operating System**: Preferably Linux or MacOS. You can use Windows if leveraging the Windows Subsystem for Linux (WSL).
+- **Python**: Required to run Ansible.
+  For Ansible 2.7 and earlier: Python 2 (version 2.6 or later).
+  For Ansible 2.8 and later: Python 3 (version 3.5 or later) is recommended.
+- **Ansible**: Ensure you've installed Ansible.
+- **SSH**: Necessary for communicating with the remote prodigy host.
 
-__Target Host:__
+**Target Host:**
 
-  - A Debian-based Linux distribution, as we're using the apt module.
-  - SSH access with key-based authentication for the user running the playbook.
-  - Sudo privileges for the user running the playbook.
+- A Debian-based Linux distribution, as we're using the apt module.
+- SSH access with key-based authentication for the user running the playbook.
+- Sudo privileges for the user running the playbook.
 
 ### Installation
 
-__1. Navigate to the Ansible Directory__
+Steps 1-4 are required to run the scripts locally. If you would like to run the scripts remotely, you can skip step 4 and follow steps 5 and 6.
+
+**1. Navigate to the Ansible Directory**
 
 Navigate to the directory containing the Ansible configuration:
-``` bash
+
+```bash
 cd ansible
 ```
 
-__2. Configure the Inventory__
-
-Set up your inventory file to specify the target host and user. Replace your.target.host.ip and username with the appropriate values:
-``` ini
-[prodigy]
-your.target.host.ip ansible_user=username
-```
-You can skip this step if you run the script directly on the VM. Instead install Ansible on the VM: 
-```bash
-apt install ansible
-```
-
-__3. Create the Secrets File__
+**2. Create the Secrets File**
 
 Initiate a new Ansible Vault file to securely store your sensitive data:
-``` bash
+
+```bash
 ansible-vault create secret.yml
 ```
 
-__4. Define Required Secrets__
+**3. Define Required Secrets**
 
 In the secret.yml file, set the necessary variables for your setup. Ensure you replace placeholders with your actual values:
-``` yml
+
+```yml
 http_username: username_for_basic_authentication
 http_password: password_for basic_authentcation
 prodigy_key: prodigy_license_key
-rclone_url: webdav_link 
+rclone_url: webdav_link
 rclone_user: webdav_username
 rclone_pass: webdav_password
 ```
-For more information about the webdav variables: 
-https://research-it.hu.nl/docs/Research%20Cloud/Hoe%20gebruik%20ik%20Research%20Cloud/HU_Research_Drive_koppelen_map/  
 
-__5. Execute the Playbooks__
+For more information about the webdav variables:
+https://research-it.hu.nl/docs/Research%20Cloud/Hoe%20gebruik%20ik%20Research%20Cloud/HU_Research_Drive_koppelen_map/
+
+**4. Execute the Playbooks locally**
 
 Run the Ansible playbooks. You'll be prompted to enter the Ansible Vault password:
-``` bash
-ansible-playbook -i inventory.ini prodigy_playbook.yml --ask-vault-pass
-```
-If you run from the VM directly, replace the following lines on top of all three .yml files in the ansible directory (setup_backup.yml, setup_docker.yml, setup_nginx.yml):
 
-```yml
-  hosts: [prodigy]
-  connection: ssh
-```
-with:
-
-```yml
-  hosts: localhost
-```
-
-Then run the playbooks with the following (you will also be prompted the Ansible Vault password):
-``` bash
+```bash
 ansible-playbook prodigy_playbook.yml --ask-vault-pass
 ```
+
+**5. Configure the Inventory**
+
+Set up your inventory file to specify the target host and user. Replace your.target.host.ip and username with the appropriate values:
+
+```ini
+[prodigy]
+your.target.host.ip ansible_user=username
+```
+
+**6. Execute the Playbooks remotely**
+Run the Ansible playbooks. You'll be prompted to enter the Ansible Vault password:
+
+```bash
+ansible-playbook -i inventory.ini prodigy_playbook.yml -e target_host=prodigy -e target_connection=ssh --ask-vault-pass
+```
+
 <p align="right"><a href="#readme-top">back to top</a></p>
 
 ## Usage <a name="time_line"></a>
@@ -138,25 +135,27 @@ ansible-playbook prodigy_playbook.yml --ask-vault-pass
 
 Once you've SSHed into the VM, you can manage users who are authorized to access the Prodigy web application and perform annotations.
 
-__Adding Additional Users:__
+**Adding Additional Users:**
 To create a new user, run the following command, replacing username with the desired username. You'll be prompted to set a password for this user.
 
-  ``` bash
-  sudo htpasswd /etc/nginx/.htpasswd username
-  ```
+```bash
+sudo htpasswd /etc/nginx/.htpasswd username
+```
 
 ### Interacting with the Docker Container
 
 Prodigy runs within a Docker container. To interact with it or manage its contents, follow these steps:
 
-__1. Listing All Containers:__
+**1. Listing All Containers:**
 To see a list of all containers and their statuses:
-``` bash
+
+```bash
 sudo docker ps -a
 ```
 
-__2. Accessing a Running Container:__
+**2. Accessing a Running Container:**
 If the desired container is running, you can directly access its shell using the following command. Replace `container_id_or_name` with the actual container's ID or name.
+
 ```
 sudo docker exec -it container_id_or_name /bin/bash
 ```
@@ -165,11 +164,13 @@ sudo docker exec -it container_id_or_name /bin/bash
 
 When using this Docker setup, it's crucial to understand the data persistence strategy:
 
-__1. Application Data:__
-- The directory /app/data within the Docker container is mounted to /app/data  on the host machine.
+**1. Application Data:**
+
+- The directory /app/data within the Docker container is mounted to /app/data on the host machine.
 - Files saved to /app/data inside the container are directly stored in /app/data on your host system.
 
-__2. Database:__
+**2. Database:**
+
 - The app/.prodigy directory in the container, which houses the database, is mounted to the prodigy_db volume on the host.
 - This ensures that your Prodigy database remains persistent, safeguarding it from data loss during container lifecycle events like restarts or removals.
 
@@ -179,13 +180,14 @@ Both these mechanisms ensure that vital data—whether related to the applicatio
 
 For data you want to send to your research drive:
 
-__1. Database Backups:__
+**1. Database Backups:**
 As rclone is configured with WebDAV credentials specific to your research directory, creating backups or copying files is straightforward. To create a backup of the Prodigy database:
 
-``` bash
+```bash
 sudo /usr/local/bin/backup.sh
 ```
-__2. Transferring Files to Research Vault:__
+
+**2. Transferring Files to Research Vault:**
 To securely transfer any file or directory to your research vault, use the following rclone command. Make sure to replace the placeholders with the actual paths of the source and destination directories.
 
 ```
